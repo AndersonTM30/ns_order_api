@@ -1,11 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { PrismaService } from '../prisma/prisma.module';
+import { RoleOutputDto } from './dto/role.output.dto';
 
 @Injectable()
 export class RolesService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  constructor(private prisma: PrismaService) {}
+
+  async create(data: CreateRoleDto): Promise<RoleOutputDto> {
+    if (!data.slug) {
+      throw new BadRequestException('Role is not empty');
+    }
+    const roleExist = await this.prisma.role?.findFirst({
+      where: { slug: data.slug },
+    });
+    if (roleExist) {
+      throw new BadRequestException('Role already exists');
+    }
+    const createdRole = await this.prisma.role?.create({
+      data,
+      select: {
+        slug: true,
+      },
+    });
+    return createdRole;
   }
 
   findAll() {
@@ -17,7 +36,7 @@ export class RolesService {
   }
 
   update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+    return `This action updates a #${id} role ${updateRoleDto}`;
   }
 
   remove(id: number) {
