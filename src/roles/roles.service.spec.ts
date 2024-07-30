@@ -3,6 +3,7 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { PrismaService } from '../prisma/prisma.module';
 import { BadRequestException } from '@nestjs/common';
+import { FindAllRolesDto } from './dto/find.all.roles.dto';
 
 describe('RolesService', () => {
   let service: RolesService;
@@ -25,6 +26,10 @@ describe('RolesService', () => {
     }).compile();
 
     service = module.get<RolesService>(RolesService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -63,5 +68,20 @@ describe('RolesService', () => {
     await expect(service.create(roles)).rejects.toThrow(
       'The slug cannot be longer than 60 characters',
     );
+  });
+
+  describe('Find all roles', () => {
+    it('should be list all roles', async () => {
+      const roles: FindAllRolesDto[] = [{ id: 1, slug: 'User' }];
+      jest.spyOn(service, 'findAll').mockImplementation(async () => roles);
+      const result = await service.findAll();
+      expect(result).toEqual([{ id: 1, slug: 'User' }]);
+    });
+    it('should return an empty role list', async () => {
+      const roles: FindAllRolesDto[] = [];
+      jest.spyOn(service, 'findAll').mockImplementation(async () => roles);
+      const result = await service.findAll();
+      expect(result).toEqual([]);
+    });
   });
 });
