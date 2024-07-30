@@ -31,7 +31,7 @@ describe('RolesService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should be possible to create a new rule', async () => {
+  it('should be possible to create a new role', async () => {
     const roles: CreateRoleDto = {
       slug: 'User',
     };
