@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PrismaService } from '../prisma/prisma.module';
@@ -23,7 +27,7 @@ export class RolesService {
     }
 
     if (roleExist) {
-      throw new BadRequestException('Role already exists');
+      throw new ConflictException('Role already exists');
     }
     const createdRole = await this.prisma.role?.create({
       data,
