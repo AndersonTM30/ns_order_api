@@ -10,13 +10,14 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { RoleOutputDto } from './dto/role.output.dto';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
+  async create(@Body() createRoleDto: CreateRoleDto): Promise<RoleOutputDto> {
     return this.rolesService.create(createRoleDto);
   }
 
