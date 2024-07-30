@@ -7,6 +7,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PrismaService } from '../prisma/prisma.module';
 import { RoleOutputDto } from './dto/role.output.dto';
+import { FindAllRolesDto } from './dto/find.all.roles.dto';
 
 @Injectable()
 export class RolesService {
@@ -38,8 +39,14 @@ export class RolesService {
     return createdRole;
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll(): Promise<FindAllRolesDto[]> {
+    const roles = await this.prisma.role.findMany({
+      select: {
+        id: true,
+        slug: true,
+      },
+    });
+    return roles;
   }
 
   findOne(id: number) {
