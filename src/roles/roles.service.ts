@@ -2,12 +2,14 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PrismaService } from '../prisma/prisma.module';
 import { RoleOutputDto } from './dto/role.output.dto';
 import { FindAllRolesDto } from './dto/find.all.roles.dto';
+import { FindOneRolesDto } from './dto/find.one.roles.dto';
 
 @Injectable()
 export class RolesService {
@@ -49,15 +51,40 @@ export class RolesService {
     return roles;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: number): Promise<FindOneRolesDto> {
+    if (!id) throw new BadRequestException('Invalid parameter!');
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: id },
+      select: { id: true, slug: true },
+    });
+
+    if (!role) {
+      throw new NotFoundException('Role not found!');
+    }
+    return role;
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role ${updateRoleDto}`;
+  async update(
+    id: number,
+    updateRoleDto: UpdateRoleDto,
+  ): Promise<UpdateRoleDto> {
+    if (!id) throw new BadRequestException('Invalid parameter!');
+    const role = await this.prisma.role.findUnique({
+      where: { id },
+    });
+
+    if (!role) throw new NotFoundException('Role not found!');
+
+    return this.prisma.role.update({
+      where: {
+        id,
+      },
+      data: { slug: updateRoleDto.slug, updatedAt: new Date() },
+    });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} role`;
   }
 }
