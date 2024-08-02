@@ -11,6 +11,26 @@ describe('RolesService', () => {
   let service: RolesService;
   let prisma: PrismaService;
 
+  const roleId = 4;
+  const currentRoleData = {
+    id: roleId,
+    slug: 'Admin',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const updateData: UpdateRoleDto = {
+    id: roleId,
+    slug: 'SuperAdmin',
+    updatedAt: new Date(),
+  };
+
+  const updatedRole = {
+    ...currentRoleData,
+    slug: updateData.slug,
+    updatedAt: updateData.updatedAt,
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -24,6 +44,7 @@ describe('RolesService', () => {
               }),
               findUnique: jest.fn(),
               update: jest.fn(),
+              delete: jest.fn(),
             },
           },
         },
@@ -120,25 +141,6 @@ describe('RolesService', () => {
   });
 
   describe('Update role by id', () => {
-    const roleId = 4;
-    const currentRoleData = {
-      id: roleId,
-      slug: 'Admin',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const updateData: UpdateRoleDto = {
-      id: roleId,
-      slug: 'SuperAdmin',
-      updatedAt: new Date(),
-    };
-
-    const updatedRole = {
-      ...currentRoleData,
-      slug: updateData.slug,
-      updatedAt: updateData.updatedAt,
-    };
     it('should be update role by id', async () => {
       jest.spyOn(prisma.role, 'findUnique').mockResolvedValue(currentRoleData);
       jest.spyOn(prisma.role, 'update').mockResolvedValue(updatedRole);
@@ -171,6 +173,35 @@ describe('RolesService', () => {
       );
       expect(prisma.role.findUnique).not.toHaveBeenCalled();
       expect(prisma.role.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Delete role by id', () => {
+    it('should delete role successfully by id', async () => {
+      jest.spyOn(prisma.role, 'findUnique').mockResolvedValue(currentRoleData);
+      jest.spyOn(prisma.role, 'delete').mockResolvedValue(currentRoleData);
+      const result = await service.remove(roleId);
+
+      expect(result).toEqual(currentRoleData);
+      expect(prisma.role.findUnique).toHaveBeenCalledWith({
+        where: { id: roleId },
+      });
+      expect(prisma.role.delete).toHaveBeenCalledWith({
+        where: { id: roleId },
+      });
+    });
+
+    it('should throw NotFoundException if role does not exist', async () => {
+      await expect(service.remove(roleId)).rejects.toThrow(NotFoundException);
+      expect(prisma.role.findUnique).toHaveBeenCalledWith({
+        where: { id: roleId },
+      });
+      expect(prisma.role.delete).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException if id is not provided', async () => {
+      await expect(service.remove(null)).rejects.toThrow(BadRequestException);
+      expect(prisma.role.delete).not.toHaveBeenCalled();
     });
   });
 });
