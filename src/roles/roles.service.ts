@@ -85,6 +85,14 @@ export class RolesService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} role`;
+    if (!id) throw new BadRequestException('Invalid parameter!');
+    const role = await this.prisma.role.findUnique({
+      where: { id },
+    });
+
+    if (!role) throw new NotFoundException('Role not found!');
+    return this.prisma.role.delete({
+      where: { id },
+    });
   }
 }
