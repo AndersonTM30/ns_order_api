@@ -34,5 +34,10 @@ npm run test:e2e
 npm run test:cov
 ```
 
+## Create modules
+```bash
+nest g resource
+```
+
 ## Status
 In Working
