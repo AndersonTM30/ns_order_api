@@ -2,14 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FindOnePermissionDto {
   @ApiProperty({
-    description: 'The id of role',
+    description: 'The id of permission',
     example: 1,
     type: 'number',
   })
   id: number;
   @ApiProperty({
-    description: 'The name of role',
-    example: 'Admin',
+    description: 'The name of permission',
+    example: 'create',
     type: 'string',
     maxLength: 60,
   })

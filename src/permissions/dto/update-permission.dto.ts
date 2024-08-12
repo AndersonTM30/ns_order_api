@@ -5,8 +5,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UpdatePermissionDto extends PartialType(CreatePermissionDto) {
   id: number;
   @ApiProperty({
-    description: 'The name of role',
-    example: 'Admin',
+    description: 'The name of permission',
+    example: 'create',
     type: 'string',
     maxLength: 60,
   })
